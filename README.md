@@ -212,5 +212,19 @@ for entity, position, health in world.find(Position, Health, has=(Burning, Desir
     pass
 ```
 
+## Performance
+
+Run the benchmark harness to get repeatable timing summaries (min/median/p95).
+
+```bash
+python3 perf_test.py --entities 10000 --repeats 7 --warmup 2
+```
+
+Optionally write JSON output for baseline tracking:
+
+```bash
+python3 perf_test.py --entities 10000 --repeats 7 --warmup 2 --json benchmarks/baseline.json
+```
+
 ## See Also
 Documentation at: www.eventually_a_link_to_documentation.com
