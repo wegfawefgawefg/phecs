@@ -251,3 +251,27 @@ class PhecsEntity(unittest.TestCase):
         world.insert(entity, Position(1, 1))
 
         self.assertFalse(world.is_empty(entity))
+
+    def test_find_on_missing_entity_returns_empty(self):
+        world = World()
+        world.spawn(Position(1, 1))
+
+        self.assertEqual(list(world.find_on(999, Position)), [])
+
+    def test_find_on_respects_has_filter(self):
+        world = World()
+        entity = world.spawn(Position(1, 1))
+
+        self.assertEqual(list(world.find_on(entity, Position, has=Velocity)), [])
+
+    def test_find_on_respects_without_filter(self):
+        world = World()
+        entity = world.spawn(Position(1, 1), IsDead(True))
+
+        self.assertEqual(list(world.find_on(entity, Position, without=IsDead)), [])
+
+    def test_entity_eq_unrelated_type_is_false(self):
+        world = World()
+        entity = world.spawn()
+
+        self.assertFalse(entity == "not-an-entity")

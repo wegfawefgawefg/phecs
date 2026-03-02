@@ -36,6 +36,8 @@ class Entity:
     def __eq__(self, other_entity: Entity | int) -> bool:
         if isinstance(other_entity, int):
             return self.__id == other_entity
+        if not isinstance(other_entity, Entity):
+            return False
         return self.__id == other_entity.__id
 
 
@@ -193,30 +195,28 @@ class World:
             Tuple[Any, ...] | None: A tuple containing the entity and the retrieved components, or None if no matching components are found.
         """
         if entity not in self.entities:
-            yield from []
+            return
         internal_entity = self.entities[entity]
 
         if has:
             if isinstance(has, (list, tuple)):
                 if any(c not in internal_entity.components for c in has):
-                    yield from []
+                    return
             elif has not in internal_entity.components:
-                yield from []
+                return
 
         if without:
             if isinstance(without, (list, tuple)):
                 if any(c in internal_entity.components for c in without):
-                    yield from []
+                    return
             elif without in internal_entity.components:
-                yield from []
+                return
 
         if all(c in internal_entity.components for c in component_types):
             yield (
                 internal_entity.entity,
                 *(internal_entity.components[c] for c in component_types),
             )
-
-        yield from []
 
     def get(self, entity: Entity, component_type: Type) -> Any | None:
         """
