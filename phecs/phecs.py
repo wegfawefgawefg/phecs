@@ -27,6 +27,10 @@ class Entity:
     def __init__(self, id):
         self.__id = id
 
+    @property
+    def id(self) -> int:
+        return self.__id
+
     def __hash__(self) -> int:
         return hash(self.__id)
 
@@ -95,6 +99,7 @@ class World:
         """
         internal_entity = InternalEntity(entity)
         self.entities[entity] = internal_entity
+        self.next_entity_id = max(self.next_entity_id, entity.id + 1)
         for component in components:
             internal_entity.components[type(component)] = component
 
@@ -285,13 +290,13 @@ class World:
         """
         return entity in self.entities and not self.entities[entity].components
 
-    def insert(self, entity: Entity, *components: Any) -> None | Error:
+    def add(self, entity: Entity, *components: Any) -> None | Error:
         """
-        Insert the specified components into an existing entity in the world.
+        Add the specified components to an existing entity in the world.
 
         Args:
-            entity (Entity): The entity to insert components into.
-            *components (Any): The components to insert.
+            entity (Entity): The entity to add components to.
+            *components (Any): The components to add.
 
         Returns:
             None | Error: None if successful, or an error if the entity does not exist in the world.
@@ -302,7 +307,7 @@ class World:
         else:
             return Error.NoSuchEntity
 
-    def remove(self, entity: Entity, *component_types: Type) -> None:
+    def remove(self, entity: Entity, *component_types: Type) -> None | Error:
         """
         Remove the specified components from an existing entity in the world.
 
@@ -310,11 +315,12 @@ class World:
             entity (Entity): The entity to remove components from.
             *component_types (Type): The types of components to remove.
         """
-        if entity in self.entities:
-            internal_entity = self.entities[entity]
-            for component_type in component_types:
-                if component_type in internal_entity.components:
-                    del internal_entity.components[component_type]
+        if entity not in self.entities:
+            return Error.NoSuchEntity
+        internal_entity = self.entities[entity]
+        for component_type in component_types:
+            if component_type in internal_entity.components:
+                del internal_entity.components[component_type]
 
     def take(self, entity: Entity) -> tuple:
         """

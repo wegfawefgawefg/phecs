@@ -1,7 +1,7 @@
 import unittest
 from dataclasses import dataclass
 
-from phecs.phecs import World
+from phecs.phecs import Entity, Error, World
 
 
 @dataclass
@@ -213,7 +213,7 @@ class PhecsEntity(unittest.TestCase):
     def test_add_one_component(self):
         world = World()
         entity = world.spawn()
-        world.insert(entity, Position(1, 1))
+        world.add(entity, Position(1, 1))
 
         result = world.find_on(entity, Position)
         e, p = next(result)
@@ -223,7 +223,7 @@ class PhecsEntity(unittest.TestCase):
     def test_add_multiple_components(self):
         world = World()
         entity = world.spawn()
-        world.insert(entity, Position(1, 1), Velocity(1, 1))
+        world.add(entity, Position(1, 1), Velocity(1, 1))
 
         result = world.find_on(entity, Position, Velocity)
         e, p, v = next(result)
@@ -234,7 +234,7 @@ class PhecsEntity(unittest.TestCase):
     def test_remove_components(self):
         world = World()
         entity = world.spawn()
-        world.insert(entity, Position(1, 1), Velocity(1, 1))
+        world.add(entity, Position(1, 1), Velocity(1, 1))
 
         self.assertTrue(world.satisfies(entity, Position))
 
@@ -248,7 +248,7 @@ class PhecsEntity(unittest.TestCase):
 
         self.assertTrue(world.is_empty(entity))
 
-        world.insert(entity, Position(1, 1))
+        world.add(entity, Position(1, 1))
 
         self.assertFalse(world.is_empty(entity))
 
@@ -275,3 +275,17 @@ class PhecsEntity(unittest.TestCase):
         entity = world.spawn()
 
         self.assertFalse(entity == "not-an-entity")
+
+    def test_remove_missing_entity_returns_error(self):
+        world = World()
+
+        self.assertEqual(world.remove(999, Position), Error.NoSuchEntity)
+
+    def test_spawn_at_updates_next_entity_id(self):
+        world = World()
+
+        world.spawn_at(Entity(5), Position(5, 5))
+        spawned = world.spawn(Position(0, 0))
+
+        self.assertEqual(spawned, 6)
+        self.assertEqual(world.get(Entity(5), Position), Position(5, 5))

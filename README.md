@@ -125,7 +125,7 @@ world = World() # initilizes a world object
 
 # Create an entity with some components
 entity = world.spawn(Position(0, 0), Velocity(1, 1), Health(100)) # add components at creation time
-world.add_component(entity, Burning()) # or add another component later
+world.add(entity, Burning()) # or add another component later
 world.despawn(entity) # remove the entity
 ```
 
@@ -165,10 +165,10 @@ def burn(world): # also a system
 def die_if_dead(world): # typical rpg system
     for entity, health in world.find(Health):
         if health.hp <= 0:
-            world.insert(entity, Dead())
+            world.add(entity, Dead())
 
 def do_nothing_expensively(world):   # a very useful system
-    for entity in world.entities():
+    for entity in world.iter():
         pass
 ```
 
@@ -214,4 +214,3 @@ for entity, position, health in world.find(Position, Health, has=(Burning, Desir
 
 ## See Also
 Documentation at: www.eventually_a_link_to_documentation.com
-
